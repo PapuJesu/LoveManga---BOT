@@ -39,7 +39,8 @@ async def on_ready():
 
 
 # ─── TAREA PROGRAMADA (cada día a las 9:00 AM UTC) ───────────
-@tasks.loop(time=time(hour=9, minute=0))
+#@tasks.loop(time=time(hour=9, minute=0))
+@tasks.loop(seconds=30)
 async def mensaje_programado():
     canal = bot.get_channel(CANAL_PROGRAMADO_ID)
     if canal:
