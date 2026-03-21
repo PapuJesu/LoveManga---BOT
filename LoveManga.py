@@ -1,44 +1,64 @@
 import discord
-from discord.ext import commands, tasks
 import asyncio
+from discord.ext import commands, tasks
 from datetime import time
+import json
+import os
+from dotenv import load_dotenv
 
-# Configuración
-TOKEN = "TU_TOKEN_AQUÍ"
-CANAL_PROGRAMADO_ID = 123456789  # ID del canal donde enviar mensajes automáticos
-
+# ─── CARGAR VARIABLES DE ENTORNO ─────────────────────────────
+load_dotenv()
+TOKEN = os.getenv("DISCORD_TOKEN")
+CANAL_PROGRAMADO_ID = int(os.getenv("ID_CHANNEL"))
+USER_KENE = int(os.getenv("ID_USER"))
+# ─── CONFIGURACIÓN DEL BOT ───────────────────────────────────
 intents = discord.Intents.default()
 intents.message_content = True
+bot = commands.Bot(command_prefix="/", intents=intents)
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+
+# ─── CONTADOR PERSISTENTE ────────────────────────────────────
+ARCHIVO_CONTADOR = "daycount.json"
+
+def leer_dia():
+    if os.path.exists(ARCHIVO_CONTADOR):
+        with open(ARCHIVO_CONTADOR, "r") as f:
+            return json.load(f)["dia"]
+    return 1
+
+def guardar_dia(dia):
+    with open(ARCHIVO_CONTADOR, "w") as f:
+        json.dump({"dia": dia}, f)
 
 
 # ─── EVENTO: Bot listo ───────────────────────────────────────
 @bot.event
 async def on_ready():
     print(f"✅ Bot conectado como {bot.user}")
-    mensaje_programado.start()  # Inicia la tarea programada
+    mensaje_programado.start()
 
 
-# ─── TAREA PROGRAMADA (cada día a las 9:00 AM) ───────────────
-@tasks.loop(time=time(hour=9, minute=0))  # Hora UTC
+# ─── TAREA PROGRAMADA (cada día a las 9:00 AM UTC) ───────────
+@tasks.loop(time=time(hour=9, minute=0))
 async def mensaje_programado():
     canal = bot.get_channel(CANAL_PROGRAMADO_ID)
     if canal:
-        await canal.send("🌅 ¡Buenos días! Mensaje automático del bot.")
+        dia_actual = leer_dia()
+        await canal.send(f"📅 Día **{dia_actual}** diciendo pene por cada día que pase hasta que <@{USER_KENE}> prenda stream.")
+        for _ in range(dia_actual):
+            await canal.send("Pene x **{dia_actual}**")
+            await asyncio.sleep(0.5)
+        guardar_dia(dia_actual + 1)
 
 
-# ─── COMANDOS PERSONALIZADOS ──────────────────────────────────
-
+# ─── COMANDOS PERSONALIZADOS ─────────────────────────────────
 @bot.command(name="hola")
 async def hola(ctx):
-    """Saluda al usuario"""
-    await ctx.send(f"👋 ¡Hola, {ctx.author.mention}!")
+    await ctx.send(f"👋 ¡Hola, Nigga {ctx.author.mention}!")
 
 
 @bot.command(name="info")
 async def info(ctx):
-    """Muestra info del servidor"""
     servidor = ctx.guild
     await ctx.send(
         f"📊 **{servidor.name}**\n"
@@ -50,9 +70,20 @@ async def info(ctx):
 @bot.command(name="anuncio")
 @commands.has_permissions(administrator=True)
 async def anuncio(ctx, *, mensaje):
-    """Envía un anuncio (solo admins). Uso: !anuncio <texto>"""
     await ctx.send(f"📢 **ANUNCIO**\n{mensaje}")
 
 
-# ─── INICIAR BOT ──────────────────────────────────────────────
-bot.run(TOKEN)
+@bot.command(name="dia")
+@commands.has_permissions(administrator=True)
+async def cambiar_dia(ctx, nuevo_dia: int):
+    if nuevo_dia < 1:
+        await ctx.send("❌ Eche tu eres marica? cómo mondá el día va a ser **{nuevo_dia}**.")
+        return
+    guardar_dia(nuevo_dia)
+    await ctx.send(f"✅ Aro, ahora el contador estará establecido desde el día **{nuevo_dia}**."
+    )
+
+@bot.command(name="consultar_dia")
+async def consult_dia(ctx):
+    dia_actual = leer_dia()
+    await ctx.send(f"joa mrk ya van **{dia_actual}** que el {USER_KENE} no prende :(")
