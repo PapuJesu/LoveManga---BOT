@@ -88,3 +88,5 @@ async def cambiar_dia(ctx, nuevo_dia: int):
 async def consult_dia(ctx):
     dia_actual = leer_dia()
     await ctx.send(f"joa mrk ya van **{dia_actual}** que el {USER_KENE} no prende :(")
+
+bot.run(TOKEN)
