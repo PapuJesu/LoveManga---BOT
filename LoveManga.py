@@ -36,13 +36,15 @@ def guardar_dia(dia):
 @bot.event
 async def on_ready():
     print(f"✅ Bot conectado como {bot.user}")
+    if not os.path.exists(ARCHIVO_CONTADOR):
+        guardar_dia(1)
     mensaje_programado.start()
 
 
 # ─── TAREA PROGRAMADA (cada día a las 9:00 AM UTC) ───────────
 #@tasks.loop(time=time(hour=9, minute=0))
 # ─── Para pruebas  ─── 
-tasks.loop(seconds=30)
+@tasks.loop(seconds=30)
 # ─── Para pruebas  ─── 
 async def mensaje_programado():
     canal = bot.get_channel(CANAL_PROGRAMADO_ID)
