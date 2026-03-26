@@ -40,15 +40,15 @@ async def on_ready():
 
 
 # ─── TAREA PROGRAMADA (cada día a las 9:00 AM UTC) ───────────
-@tasks.loop(time=time(hour=9, minute=0))
+#@tasks.loop(time=time(hour=9, minute=0))
 # ─── Para pruebas  ─── 
-#tasks.loop(seconds=30)
+tasks.loop(seconds=30)
 # ─── Para pruebas  ─── 
 async def mensaje_programado():
     canal = bot.get_channel(CANAL_PROGRAMADO_ID)
+    dia_actual = leer_dia()
+    guardar_dia(dia_actual + 1)
     if canal:
-        dia_actual = leer_dia()
-        guardar_dia(dia_actual + 1)
         await canal.send(f"📅 Día **{dia_actual}** diciendo pene por cada día que pase hasta que <@{USER_KENE}> prenda stream.")
         for _ in range(dia_actual):
             await canal.send(f"Pene ** x{_+1}**")
