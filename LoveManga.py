@@ -51,11 +51,10 @@ async def mensaje_programado():
     dia_actual = leer_dia()
     guardar_dia(dia_actual + 1)
     if canal:
-        await canal.send(f"📅 Día **{dia_actual}** diciendo pene por cada día que pase hasta que <@{USER_KENE}> prenda stream.")
-        for _ in range(dia_actual):
+        await canal.send(f"📅 Día **{dia_actual + 1}** diciendo pene por cada día que pase hasta que <@{USER_KENE}> prenda stream.")
+        for _ in range(dia_actual + 1):
             await canal.send(f"Pene ** x{_+1}**")
             await asyncio.sleep(0.5)
-        
 
 # ─── COMANDOS PERSONALIZADOS ─────────────────────────────────
 @bot.command(name="hola")
